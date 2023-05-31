@@ -1,0 +1,590 @@
+<div class="container">
+  <p-card header="Курси" [style]="{ width: '100%',}">
+    <p-toast></p-toast>
+
+    <p-toolbar styleClass="mb-4 gap-2">
+      <ng-template pTemplate="left">
+        <p-button label="Додати програму підготовки" icon="pi pi-plus" styleClass="p-button-outlined p-button-info"
+                  (click)="openNewTrainingProgramDialog()"></p-button>
+      </ng-template>
+
+      <ng-template pTemplate="right">
+        <p-button icon="pi pi-trash" styleClass="p-button-outlined  p-button-danger"
+                  (click)="deleteTrainingPrograms()"
+                  [disabled]="!selectedTrainingPrograms || !selectedTrainingPrograms.length"></p-button>
+      </ng-template>
+    </p-toolbar>
+
+    <p-table [value]="trainingProgramList" [(selection)]="selectedTrainingPrograms" dataKey="id"
+             [tableStyle]="{ 'min-width': '60rem' }"
+             styleClass="p-datatable-gridlines">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th style="width: 5rem"></th>
+          <th pSortableColumn="name">
+            <div class="flex justify-content-between align-items-center">
+              Програма підготовки
+              <p-sortIcon field="name"></p-sortIcon>
+              <p-columnFilter type="text" field="name" display="menu" class="ml-auto"></p-columnFilter>
+            </div>
+          </th>
+          <th pSortableColumn="specialtyCode">
+            <div class="flex justify-content-between align-items-center">
+              Код спеціальності
+              <p-sortIcon field="specialtyCode"></p-sortIcon>
+              <p-columnFilter type="text" field="specialtyCode" display="menu" class="ml-auto"></p-columnFilter>
+            </div>
+          </th>
+          <th pSortableColumn="trainingProgramDepartment">
+            <div class="flex justify-content-between align-items-center">
+              Факультет
+              <p-sortIcon field="trainingProgramDepartment"></p-sortIcon>
+              <p-columnFilter type="text" field="trainingProgramDepartment" display="menu"
+                              class="ml-auto"></p-columnFilter>
+            </div>
+          </th>
+          <th pSortableColumn="year">
+            <div class="flex justify-content-between align-items-center">
+              Рік
+              <p-sortIcon field="year"></p-sortIcon>
+              <p-columnFilter type="text" field="year" display="menu" class="ml-auto"></p-columnFilter>
+            </div>
+          </th>
+          <th>Дія</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-trainingProgram let-expanded="expanded">
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="trainingProgram"></p-tableCheckbox>
+          </td>
+          <td>
+            <button type="button" pButton pRipple [pRowToggler]="trainingProgram"
+                    class="p-button-text p-button-rounded p-button-plain"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+          </td>
+          <td>{{ trainingProgram.name }}</td>
+          <td>{{ trainingProgram.specialtyCode }}</td>
+          <td>{{ trainingProgram.trainingProgramDepartment }}</td>
+          <td>{{ trainingProgram.year }}</td>
+          <td>
+            <button pButton pRipple icon="pi pi-pencil"
+                    class="p-button-rounded p-button-secondary mr-2 p-button-outlined"
+                    (click)="openUpdateTrainingProgramDialog(trainingProgram)"></button>
+            <button pButton pRipple icon="pi pi-trash"
+                    class="p-button-rounded p-button-danger p-button-outlined"
+                    (click)="deleteTrainingProgram(trainingProgram)"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="rowexpansion" let-trainingProgram>
+        <tr>
+          <td colspan="7">
+            <div class="p-3">
+              <p-table [value]="trainingProgram.coursesByEducationalComponents" dataKey="id"
+                       styleClass="p-datatable-gridlines">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th></th>
+                    <th pSortableColumn="shablonName">
+                      <div class="flex justify-content-between align-items-center">
+                        Назва шаблону
+                        <p-sortIcon field="shablonName"></p-sortIcon>
+                        <p-columnFilter type="text" field="shablonName" display="menu" class="ml-auto"></p-columnFilter>
+                      </div>
+                    </th>
+                    <th pSortableColumn="forCourse">
+                      <div class="flex justify-content-between align-items-center">
+                        Курс
+                        <p-sortIcon field="forCourse"></p-sortIcon>
+                        <p-columnFilter type="text" field="forCourse" display="menu" class="ml-auto"></p-columnFilter>
+                      </div>
+                    </th>
+                    <th pSortableColumn="forSemester">
+                      <div class="flex justify-content-between align-items-center">
+                        Семестр
+                        <p-sortIcon field="forSemester"></p-sortIcon>
+                        <p-columnFilter type="text" field="forSemester" display="menu" class="ml-auto"></p-columnFilter>
+                      </div>
+                    </th>
+                    <th pSortableColumn="countCredit">
+                      <div class="flex justify-content-between align-items-center">
+                        ECTS
+                        <p-sortIcon field="countCredit"></p-sortIcon>
+                        <p-columnFilter type="text" field="countCredit" display="menu" class="ml-auto"></p-columnFilter>
+                      </div>
+                    </th>
+                    <th pSortableColumn="semesterControlType">
+                      <div class="flex justify-content-between align-items-center">
+                        Тип контролю
+                        <p-sortIcon field="semesterControlType"></p-sortIcon>
+                        <p-columnFilter type="text" field="semesterControlType" display="menu"
+                                        class="ml-auto"></p-columnFilter>
+                      </div>
+                    </th>
+                    <th>Дія</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-courseByEducationalComponent let-expanded="expanded">
+                  <tr *ngIf="courseByEducationalComponent.shablonName !== ''">
+                    <td>
+                      <button *ngIf="courseByEducationalComponent.shablonName !== ''" type="button" pButton pRipple
+                              [pRowToggler]="courseByEducationalComponent"
+                              class="p-button-text p-button-rounded p-button-plain"
+                              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                    </td>
+                    <td>{{ courseByEducationalComponent.shablonName }}</td>
+                    <td>{{ courseByEducationalComponent.forCourse }}</td>
+                    <td>{{ courseByEducationalComponent.forSemester }}</td>
+                    <td>{{ courseByEducationalComponent.countCredit }}</td>
+                    <td>{{ courseByEducationalComponent.semesterControlType }}</td>
+                    <td>
+                      <button pButton pRipple icon="pi pi-pencil"
+                              class="p-button-rounded p-button-secondary mr-2 p-button-outlined"
+                              (click)="openUpdateEducationalComponentDialog(trainingProgram, courseByEducationalComponent)"></button>
+                      <button pButton pRipple icon="pi pi-trash"
+                              class="p-button-rounded p-button-danger p-button-outlined"
+                              (click)="deleteEducationalComponent(trainingProgram, courseByEducationalComponent)"></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="courseByEducationalComponent.shablonName === ''">
+                    <td colspan="7">
+                      <p-button *ngIf="courseByEducationalComponent.shablonName === ''" icon="pi pi-plus"
+                                label="Додати освітню компоненту"
+                                styleClass="p-button-outlined p-button-info"
+                                (click)="openNewEducationalComponentDialog(trainingProgram, courseByEducationalComponent)"></p-button>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-courseByEducationalComponent>
+                  <tr>
+                    <td colspan="7">
+                      <div class="p-3">
+                        <p-table [value]="courseByEducationalComponent.courses" dataKey="id"
+                        >
+                          <ng-template pTemplate="header">
+                            <tr>
+                              <th pSortableColumn="name">
+                                <div class="flex justify-content-between align-items-center">
+                                  Назва дисципліни
+                                  <p-sortIcon field="name"></p-sortIcon>
+                                  <p-columnFilter type="text" field="name" display="menu"
+                                                  class="ml-auto"></p-columnFilter>
+                                </div>
+                              </th>
+                              <th pSortableColumn="department">
+                                <div class="flex justify-content-between align-items-center">
+                                  Читає кафедра
+                                  <p-sortIcon field="department"></p-sortIcon>
+                                  <p-columnFilter type="text" field="department" display="menu"
+                                                  class="ml-auto"></p-columnFilter>
+                                </div>
+                              </th>
+                              <th>Дія</th>
+                            </tr>
+                          </ng-template>
+                          <ng-template pTemplate="body" let-course>
+                            <tr *ngIf="course.name !== ''">
+                              <td>{{ course.name }}</td>
+                              <td>{{ course.department }}</td>
+                              <td>
+                                <button pButton pRipple icon="pi pi-pencil"
+                                        class="p-button-rounded p-button-secondary mr-2 p-button-outlined"
+                                        (click)="openUpdateCourseDialog(trainingProgram, courseByEducationalComponent, course)"></button>
+                                <button pButton pRipple icon="pi pi-trash"
+                                        class="p-button-rounded p-button-danger p-button-outlined"
+                                        (click)="deleteCourse(trainingProgram, courseByEducationalComponent, course)"></button>
+                              </td>
+                            </tr>
+                            <tr *ngIf="course.name === ''">
+                              <td colspan="5">
+                                <p-button icon="pi pi-plus" label="Додати дисципліну"
+                                          styleClass="p-button-outlined p-button-info"
+                                          (click)="openNewCourseDialog(trainingProgram, courseByEducationalComponent, course)"></p-button>
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+
+<p-dialog [(visible)]="trainingProgramDialog" [style]="{ width: '600px' }" header="Програма підготовки" [modal]="true"
+          styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <img
+      src="https://www.alert-software.com/hs-fs/hubfs/employee_training_program.png?width=1280&name=employee_training_program.png"
+      class="block m-auto pb-3" style="width: 100%"/>
+
+    <div class="field">
+      <label for="name">Назва</label>
+      <textarea type="text" pInputTextarea id="name" [(ngModel)]="trainingProgram.name" required rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !trainingProgram.name">Name is required.</small>
+    </div>
+
+    <div class="p-field field">
+      <label for="trainingProgramDepartment">Факультет</label>
+      <p-dropdown [options]="departments"
+                  [(ngModel)]="trainingProgram.trainingProgramDepartment"
+                  placeholder="Оберіть факультет"
+                  name="trainingProgramDepartment" id="trainingProgramDepartment"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="p-field field">
+      <label for="year">Рік</label>
+      <p-dropdown [options]="years"
+                  [(ngModel)]="trainingProgram.year"
+                  placeholder="Оберіть рік"
+                  name="year" id="year"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="field">
+      <label for="specialtyCode">Код спеціальності</label>
+      <input type="text" pInputText id="specialtyCode" [(ngModel)]="trainingProgram.specialtyCode" required/>
+      <small class="p-error" *ngIf="submitted && !trainingProgram.specialtyCode">Specialty code is required.</small>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Відмінити" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Додати" icon="pi pi-check" class="p-button-text"
+            (click)="addTrainingProgram()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="updateTrainingProgramDialog" [style]="{ width: '600px' }" header="Програма підготовки"
+          [modal]="true"
+          styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <img
+      src="https://www.alert-software.com/hs-fs/hubfs/employee_training_program.png?width=1280&name=employee_training_program.png"
+      class="block m-auto pb-3" style="width: 100%"/>
+
+    <div class="field">
+      <label for="nameUpdate">Назва</label>
+      <textarea type="text" pInputTextarea id="nameUpdate" [(ngModel)]="trainingProgram.name" required rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !trainingProgram.name">Name is required.</small>
+    </div>
+
+    <div class="p-field field">
+      <label for="trainingProgramDepartmentUpdate">Факультет</label>
+      <p-dropdown [options]="departments"
+                  [(ngModel)]="trainingProgram.trainingProgramDepartment"
+                  placeholder="Оберіть факультет"
+                  name="trainingProgramDepartmentUpdate" id="trainingProgramDepartmentUpdate"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="p-field field">
+      <label for="yearUpdate">Рік</label>
+      <p-dropdown [options]="years"
+                  [(ngModel)]="trainingProgram.year"
+                  placeholder="Оберіть рік"
+                  name="yearUpdate" id="yearUpdate"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="field">
+      <label for="specialtyCodeUpdate">Код спеціальності</label>
+      <input type="text" pInputText id="specialtyCodeUpdate" [(ngModel)]="trainingProgram.specialtyCode" required/>
+      <small class="p-error" *ngIf="submitted && !trainingProgram.specialtyCode">Specialty code is required.</small>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Відмінити" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Зберегти зміни" icon="pi pi-check" class="p-button-text"
+            (click)="updateTrainingProgram()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="educationalComponentDialog" [style]="{ width: '600px' }" header="Освітня компонента"
+          [modal]="true"
+          styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <img
+      src="https://www.alert-software.com/hs-fs/hubfs/employee_training_program.png?width=1280&name=employee_training_program.png"
+      class="block m-auto pb-3" style="width: 100%"/>
+
+    <div class="field">
+      <label for="shablonName">Назва шаблону</label>
+      <textarea type="text" pInputTextarea id="shablonName" [(ngModel)]="courseByEducationalComponent.shablonName"
+                required rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !courseByEducationalComponent.shablonName">Name is required.</small>
+    </div>
+
+    <div class="p-field field">
+      <label for="forCourse">Курс</label>
+      <p-dropdown [options]="forCourses"
+                  [(ngModel)]="courseByEducationalComponent.forCourse"
+                  placeholder="Оберіть курс"
+                  name="forCourse" id="forCourse"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="p-field field">
+      <label for="forSemester">Семестер</label>
+      <p-dropdown [options]="forSemesters"
+                  [(ngModel)]="courseByEducationalComponent.forSemester"
+                  placeholder="Оберіть семестер"
+                  name="forSemester" id="forSemester"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+
+    <div class="field">
+      <label for="countCredit">ECTS</label>
+      <input type="text" pInputText id="countCredit" [(ngModel)]="courseByEducationalComponent.countCredit" required/>
+      <small class="p-error" *ngIf="submitted && !courseByEducationalComponent.countCredit">ECTS is required.</small>
+    </div>
+
+    <div class="p-field field">
+      <label for="semesterControlType">Тип контролю</label>
+      <p-dropdown appendTo="body" [options]="semesterControlTypes"
+                  [(ngModel)]="courseByEducationalComponent.semesterControlType"
+                  placeholder="Оберіть тип контролю"
+                  name="semesterControlType" id="semesterControlType"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Відмінити" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Додати" icon="pi pi-check" class="p-button-text"
+            (click)="addCourseByEducationalComponent()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="updateEducationalComponentDialog" [style]="{ width: '600px' }" header="Освітня компонента"
+          [modal]="true"
+          styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <img
+      src="https://www.alert-software.com/hs-fs/hubfs/employee_training_program.png?width=1280&name=employee_training_program.png"
+      class="block m-auto pb-3" style="width: 100%"/>
+
+    <div class="field">
+      <label for="shablonNameUpdate">Назва шаблону</label>
+      <textarea type="text" pInputTextarea id="shablonNameUpdate" [(ngModel)]="courseByEducationalComponent.shablonName"
+                required rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !courseByEducationalComponent.shablonName">Name is required.</small>
+    </div>
+
+    <div class="p-field field">
+      <label for="forCourseUpdate">Курс</label>
+      <p-dropdown [options]="forCourses"
+                  [(ngModel)]="courseByEducationalComponent.forCourse"
+                  placeholder="Оберіть курс"
+                  name="forCourseUpdate" id="forCourseUpdate"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="p-field field">
+      <label for="forSemesterUpdate">Семестер</label>
+      <p-dropdown [options]="forSemesters"
+                  [(ngModel)]="courseByEducationalComponent.forSemester"
+                  placeholder="Оберіть семестер"
+                  name="forSemesterUpdate" id="forSemesterUpdate"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+
+    <div class="field">
+      <label for="countCreditUpdate">ECTS</label>
+      <input type="text" pInputText id="countCreditUpdate" [(ngModel)]="courseByEducationalComponent.countCredit"
+             required/>
+      <small class="p-error" *ngIf="submitted && !courseByEducationalComponent.countCredit">ECTS is required.</small>
+    </div>
+
+    <div class="p-field field">
+      <label for="semesterControlTypeUpdate">Тип контролю</label>
+      <p-dropdown appendTo="body" [options]="semesterControlTypes"
+                  [(ngModel)]="courseByEducationalComponent.semesterControlType"
+                  placeholder="Оберіть тип контролю"
+                  name="semesterControlTypeUpdate" id="semesterControlTypeUpdate"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Відмінити" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Зберегти зміни" icon="pi pi-check" class="p-button-text"
+            (click)="updateEducationalComponent()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="courseDialog" [style]="{ width: '600px' }" header="Дисципліна"
+          [modal]="true"
+          styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <img
+      src="https://www.alert-software.com/hs-fs/hubfs/employee_training_program.png?width=1280&name=employee_training_program.png"
+      class="block m-auto pb-3" style="width: 100%"/>
+
+    <div class="field">
+      <label for="courseName">Назва дисципліни</label>
+      <input type="text" pInputText id="courseName" [(ngModel)]="course.name" required/>
+      <small class="p-error" *ngIf="submitted && !course.name">Name is required.</small>
+    </div>
+
+    <div class="p-field field">
+      <label for="department">Читає кафедра</label>
+      <p-dropdown [options]="departments"
+                  [(ngModel)]="course.department"
+                  placeholder="Оберіть кафедру"
+                  name="department" id="department"
+                  optionLabel="label" optionValue="value" appendTo="body"></p-dropdown>
+    </div>
+
+    <div class="field">
+      <label for="teacher">Викладач</label>
+      <input type="text" pInputText id="teacher" [(ngModel)]="course.teacher" required/>
+      <small class="p-error" *ngIf="submitted && !course.teacher">Teacher is required.</small>
+    </div>
+
+    <div class="field">
+      <label for="requirements">Пререквізити, вимоги до початку вивчення</label>
+      <textarea type="text" pInputTextarea id="requirements" [(ngModel)]="course.requirements" required rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.requirements">Requirements are required.</small>
+    </div>
+
+    <div class="field">
+      <label for="whatWillBeStudied">Що буде вивчатися</label>
+      <textarea type="text" pInputTextarea id="whatWillBeStudied" [(ngModel)]="course.whatWillBeStudied" required
+                rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.whatWillBeStudied">whatWillBeStudied are required.</small>
+    </div>
+
+    <div class="field">
+      <label for="whyIsThisInteresting">Чому це цікаво/треба вивчати</label>
+      <textarea type="text" pInputTextarea id="whyIsThisInteresting" [(ngModel)]="course.whyIsThisInteresting" required
+                rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.whyIsThisInteresting">whyIsThisInteresting are
+        required.</small>
+    </div>
+
+    <div class="field">
+      <label for="learningOutcomes">Чому можна навчитися (результати навчання)</label>
+      <textarea type="text" pInputTextarea id="learningOutcomes" [(ngModel)]="course.learningOutcomes" required rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.learningOutcomes">learningOutcomes are required.</small>
+    </div>
+
+    <div class="field">
+      <label for="howToUseKnowledge">Як можна користуватися набутими знаннями і уміннями (компетентності)</label>
+      <textarea type="text" pInputTextarea id="howToUseKnowledge" [(ngModel)]="course.howToUseKnowledge" required
+                rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.howToUseKnowledge">howToUseKnowledge are required.</small>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Відмінити" icon="pi pi-times" class="p-button-text"
+            (click)="hideDialog()"></button>
+    <button pButton pRipple label="Додати" icon="pi pi-check" class="p-button-text"
+            (click)="addCourse()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="updateCourseDialog" [style]="{ width: '600px' }" header="Дисципліна"
+          [modal]="true"
+          styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <img
+      src="https://www.alert-software.com/hs-fs/hubfs/employee_training_program.png?width=1280&name=employee_training_program.png"
+      class="block m-auto pb-3" style="width: 100%"/>
+
+    <div class="field">
+      <label for="courseNameUpdate">Назва дисципліни</label>
+      <input type="text" pInputText id="courseNameUpdate" [(ngModel)]="course.name" required/>
+      <small class="p-error" *ngIf="submitted && !course.name">Name is required.</small>
+    </div>
+
+    <div class="p-field field">
+      <label for="departmentUpdate">Читає кафедра</label>
+      <p-dropdown [options]="departments"
+                  [(ngModel)]="course.department"
+                  placeholder="Оберіть кафедру"
+                  name="departmentUpdate" id="departmentUpdate"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="field">
+      <label for="teacherUpdate">Викладач</label>
+      <input type="text" pInputText id="teacherUpdate" [(ngModel)]="course.teacher" required/>
+      <small class="p-error" *ngIf="submitted && !course.teacher">Teacher is required.</small>
+    </div>
+
+    <div class="field">
+      <label for="requirementsUpdate">Пререквізити, вимоги до початку вивчення</label>
+      <textarea type="text" pInputTextarea id="requirementsUpdate" [(ngModel)]="course.requirements" required rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.requirements">Requirements are required.</small>
+    </div>
+
+    <div class="field">
+      <label for="whatWillBeStudiedUpdate">Що буде вивчатися</label>
+      <textarea type="text" pInputTextarea id="whatWillBeStudiedUpdate" [(ngModel)]="course.whatWillBeStudied" required
+                rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.whatWillBeStudied">whatWillBeStudied are required.</small>
+    </div>
+
+    <div class="field">
+      <label for="whyIsThisInterestingUpdate">Чому це цікаво/треба вивчати</label>
+      <textarea type="text" pInputTextarea id="whyIsThisInterestingUpdate" [(ngModel)]="course.whyIsThisInteresting"
+                required rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.whyIsThisInteresting">whyIsThisInteresting are
+        required.</small>
+    </div>
+
+    <div class="field">
+      <label for="learningOutcomesUpdate">Чому можна навчитися (результати навчання)</label>
+      <textarea type="text" pInputTextarea id="learningOutcomesUpdate" [(ngModel)]="course.learningOutcomes" required
+                rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.learningOutcomes">learningOutcomes are required.</small>
+    </div>
+
+    <div class="field">
+      <label for="howToUseKnowledgeUpdate">Як можна користуватися набутими знаннями і уміннями (компетентності)</label>
+      <textarea type="text" pInputTextarea id="howToUseKnowledgeUpdate" [(ngModel)]="course.howToUseKnowledge" required
+                rows="3"
+                cols="20"></textarea>
+      <small class="p-error" *ngIf="submitted && !course.howToUseKnowledge">howToUseKnowledge are required.</small>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Відмінити" icon="pi pi-times" class="p-button-text"
+            (click)="hideDialog()"></button>
+    <button pButton pRipple label="Зберегти зміни" icon="pi pi-check" class="p-button-text"
+            (click)="updateCourse()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

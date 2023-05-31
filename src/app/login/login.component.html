@@ -1,0 +1,36 @@
+<p-card header="Авторизація" [style]="{ width: '360px', margin: '200px auto'}">
+  <form class="p-fluid" (ngSubmit)="login()" [formGroup]="loginForm">
+    <div class="p-field field">
+      <label for="email">Електронна пошта</label>
+      <input type="email" formControlName="login" [(ngModel)]="email" name="email" id="email" class="p-inputtext"
+             required>
+      <div class="ui-grid-col-4">
+        <div [hidden]="loginForm.controls['login'].valid || !loginForm.controls['login'].dirty"
+             class="alert alert-danger">
+          Email is required
+        </div>
+      </div>
+    </div>
+    <div class="p-field field">
+      <label for="password">Пароль</label>
+      <input type="password" formControlName="password" [(ngModel)]="password" name="password" id="password"
+             class="p-inputtext" required>
+      <div class="ui-grid-col-4">
+        <div
+          [hidden]="loginForm.controls['password'].valid || !loginForm.controls['password'].dirty"
+          class="alert alert-danger">
+          Password is required
+        </div>
+      </div>
+    </div>
+
+    <p-button label="Увійти" type="submit" [disabled]="!loginForm.valid"></p-button>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="register-link">
+      <div><a href="/register" style="text-decoration: none"> Реєстрація </a></div>
+      <div><a href="/forgot-password" style="text-decoration: none"> Забули пароль? </a></div>
+    </div>
+  </ng-template>
+</p-card>

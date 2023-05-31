@@ -1,0 +1,70 @@
+<p-card header="Налаштування профілю"
+        [style]="{ width: '500px', margin: '0 100px', backgroundColor: 'inherit', border: 'none', boxShadow: 'none'}">
+  <form class="p-fluid" (ngSubmit)="updateStudent()" [formGroup]="loginForm">
+    <div class="p-field field">
+      <div class="p-field field">
+        <label for="lastName">Прізвище</label>
+        <input formControlName="lastName" type="text" name="lastName" id="lastName" [(ngModel)]="student.lastName"
+               class="p-inputtext" placeholder="Семенюк" required>
+      </div>
+
+      <label for="firstName">Ім'я</label>
+      <input formControlName="firstName" type="text" name="email" id="firstName" [(ngModel)]="student.firstName"
+             class="p-inputtext" placeholder="Семен" required>
+    </div>
+
+    <div class="p-field field">
+      <label for="surname">По батькові</label>
+      <input formControlName="surname" type="text" name="lastName" id="surname" [(ngModel)]="student.surname"
+             class="p-inputtext" placeholder="Семенович" required>
+    </div>
+
+    <div class="p-field field">
+      <label for="dateOfBirth">Дата народження</label>
+      <p-calendar formControlName="dateOfBirth" [(ngModel)]="student.dateOfBirth" name="lastName" id="dateOfBirth"
+                  placeholder="04/14/2002"></p-calendar>
+    </div>
+
+    <div class="p-field field">
+      <label for="department">Факультет</label>
+      <p-dropdown formControlName="department" [options]="departments" [(ngModel)]="student.department"
+                  placeholder="Оберіть факультет"
+                  name="department" id="department"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="p-field field">
+      <label for="specialtyCode">Код спеціальності</label>
+      <input formControlName="specialtyCode" type="text" name="specialtyCode" id="specialtyCode"
+             [(ngModel)]="student.specialtyCode" class="p-inputtext" placeholder="122"
+             required>
+    </div>
+
+    <div class="p-field field">
+      <label for="course">Курс</label>
+      <p-dropdown formControlName="course" [options]="forCourses" [(ngModel)]="student.course"
+                  placeholder="Оберіть курс"
+                  name="course" id="course"
+                  optionLabel="label" optionValue="value"></p-dropdown>
+    </div>
+
+    <div class="p-field field">
+      <label for="group">Група</label>
+      <input formControlName="group" type="text" name="group" id="group" [(ngModel)]="student.group" class="p-inputtext"
+             placeholder="ТР-81">
+    </div>
+
+    <div class="p-field field">
+      <label for="email">Електронна пошта</label>
+      <input formControlName="email" type="email" [(ngModel)]="student.email" name="email" id="email"
+             class="p-inputtext"
+             required placeholder="student@gmail.com">
+    </div>
+
+    <p-button label="Зберегти" type="submit" [disabled]="!loginForm.valid"></p-button>
+  </form>
+</p-card>
+
+
+
+

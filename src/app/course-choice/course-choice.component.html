@@ -1,0 +1,135 @@
+<div class="container">
+  <p-card *ngIf="student.selectedCourses && student.selectedCourses.length > 0" header="Обрані дисципліни"
+          [style]="{ width: '100%', marginBottom: '20px'}">
+    <p-table [value]="student.selectedCourses" dataKey="id" styleClass="p-datatable-gridlines">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Назва шаблону</th>
+          <th>Назва дисципліни</th>
+          <th>Читає кафедра</th>
+          <th>Викладач</th>
+          <th>Дія</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-course>
+        <tr [pSelectableRow]="course" *ngIf="course.name !== ''">
+          <td>{{ course.educationalComponent }}</td>
+          <td>{{ course.name }}</td>
+          <td>{{ course.department }}</td>
+          <td>{{ course.teacher }}</td>
+          <td>
+            <p-button label="Відмінити вибір" styleClass="p-button-outlined p-button-danger"
+                      (click)="editCourseSelect(course)"
+                      icon="pi pi-times"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-card *ngIf="coursesByEducationalComponent.length > 0" header="Шаблони для вибору"
+          [style]="{ width: '100%',}">
+    <div *ngIf="coursesByEducationalComponent.length > 0">
+      <p-toast></p-toast>
+      <p-table [value]="coursesByEducationalComponent" dataKey="shablonName" [tableStyle]="{ 'min-width': '60rem' }"
+               styleClass="p-datatable-gridlines">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 5rem"></th>
+            <th>Назва шаблону</th>
+            <th>Курс</th>
+            <th>Семестр</th>
+            <th>ECTS</th>
+            <th>Тип контролю</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-shablon let-expanded="expanded">
+          <tr [ngClass]="isShablonDisabled(shablon) ? 'disabled' : ''">
+            <td>
+              <button type="button" pButton pRipple [pRowToggler]="shablon"
+                      class="p-button-text p-button-rounded p-button-plain"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                      [pRowTogglerDisabled]="isShablonDisabled(shablon)"></button>
+            </td>
+            <td>{{ shablon.shablonName }}</td>
+            <td>{{ shablon.forCourse }}</td>
+            <td>{{ shablon.forSemester }}</td>
+            <td>{{ shablon.countCredit }}</td>
+            <td>{{ shablon.semesterControlType }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-shablon>
+          <tr>
+            <td colspan="7">
+              <div class="p-3">
+                <p-table [value]="shablon.courses" dataKey="id" styleClass="p-datatable-gridlines">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Назва дисципліни</th>
+                      <th>Читає кафедра</th>
+                      <th>URL</th>
+                      <th>Вибір</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-course>
+                    <tr [pSelectableRow]="course" *ngIf="course.name !== ''">
+                      <td>{{ course.name }}</td>
+                      <td>{{ course.department }}</td>
+                      <td>
+                        <button pButton pRipple label="Детальніше" class="p-button-text"
+                                (click)="openCourseDialog(course)"
+                        ></button>
+                      </td>
+                      <td>
+                        <p-button label="Записатись" icon="pi pi-plus"
+                                  (click)="onCourseSelect(course, shablon)" styleClass="p-button-outlined"></p-button>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
+</div>
+
+<p-dialog [(visible)]="courseDialog" [style]="{ width: '600px' }" header="Дисципліна"
+          [modal]="true"
+          styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <img
+      src="https://www.alert-software.com/hs-fs/hubfs/employee_training_program.png?width=1280&name=employee_training_program.png"
+      class="block m-auto pb-3" style="width: 100%"/>
+
+    <p-panel header="Викладач" styleClass="field">
+      <p>{{course.teacher}}</p>
+    </p-panel>
+
+    <p-panel header="Пререквізити, вимоги до початку вивчення" styleClass="field">
+      <p>{{course.requirements}}</p>
+    </p-panel>
+
+    <p-panel header="Що буде вивчатися" styleClass="field">
+      <p>{{course.whatWillBeStudied}}</p>
+    </p-panel>
+
+    <p-panel header="Чому це цікаво/треба вивчати" styleClass="field">
+      <p>{{course.whyIsThisInteresting}}</p>
+    </p-panel>
+
+    <p-panel header="Чому можна навчитися (результати навчання)" styleClass="field">
+      <p>{{course.learningOutcomes}}</p>
+    </p-panel>
+
+    <p-panel header="Як можна користуватися набутими знаннями і уміннями (компетентності)" styleClass="field">
+      <p>{{course.howToUseKnowledge}}</p>
+    </p-panel>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Закрити" icon="pi pi-times" class="p-button-text"
+            (click)="hideDialog()"></button>
+  </ng-template>
+</p-dialog>

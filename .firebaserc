@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "course-choice": {
+      "hosting": {
+        "course-choice": [
+          "course-choice"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "course-choice"
+  }
+}
